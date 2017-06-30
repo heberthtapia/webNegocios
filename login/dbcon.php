@@ -1,7 +1,7 @@
 <?php
 define('DB_SERVER', 'localhost');
 define('DB_SERVER_USERNAME', 'root');
-define('DB_SERVER_PASSWORD', 'd4rkm1nd');
+define('DB_SERVER_PASSWORD', 'mysql');
 define('DB_DATABASE', 'negocios');
 
 /*define('DB_SERVER', 'sql305.260mb.net');

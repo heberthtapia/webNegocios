@@ -1,31 +1,80 @@
 <?php
 /*error_reporting(E_ALL ^ E_NOTICE);*/
 include('dbcon.php');
+
+date_default_timezone_set("America/La_Paz" );
+
 $username = $_POST['username'];
 $password = md5($_POST['password']);
 $email = $_POST['email'];
 $afiliador = $_POST['afiliador'];
 $date = 0;
-if ($conexion) {
-		//echo "conexion exitosa. <br />";
-		$insert = "INSERT INTO tbl_users (user_name,user_email,user_password,usuario_afiliado,joining_date) VALUES ('$username','$email','$password','$afiliador','$date')";
-		mysql_query($insert);
-		//$resultado=mysqli_query($conexion,$insert);
-		/*if ($resultado) {
-			echo "perfil almacenado. <br />";
-		}
-		else {echo "error en la ejecución de la consulta. <br />";
-		}
+$nivel = 0;
+$rest = 350;
+$cont = 0;
 
-		if (mysqli_close($conexion)){
-			echo "desconexion realizada. <br />";
-		}
-		else {echo "error en la desconexión";
-		}*/
-		//header("location: full_register_afiliado.php ");
+require_once "tree.php";
+$tree = new Tree();
+
+if ($conexion) {
+
+		$fecha = date('Y-m-d g:i:s');
+
+		$insert = "INSERT INTO tbl_users (user_name,user_email,user_password,usuario_afiliado,joining_date) VALUES ('$username','$email','$password','$afiliador','$fecha')";
+		mysql_query($insert);
+
+		$idUser = mysql_insert_id();
+
+		$sql	= "INSERT INTO cuenta (user_id, userFrom, debe, haber, saldo, fecha) VALUES ('$idUser', 0,350,0,350,'$fecha')";
+		mysql_query($sql);		
+
+		if( $afiliador != 0 ){
+			
+			$elements = $tree->getReg($idUser);
+			$masters = $elements["masters"];
+			$childrens = $elements["childrens"];	
+			
+			$debe =((350*10)/100);
+
+			foreach ($childrens as $key => $value) {
+
+				$nivel++;
+
+				if($nivel <= 6){
+
+					$q = 'SELECT * FROM cuenta WHERE user_id = '.$value["user_id"].' ORDER BY id_cuenta ASC';
+					$rs = mysql_query( $q );
+					while ($fila = mysql_fetch_array($rs)) {
+						$saldo = trim($fila['saldo']);
+					}
+
+					$saldo = $saldo+$debe;				
+					$afiliador = $value["user_id"];				
+
+					$sql = "INSERT INTO cuenta (user_id, userFrom, debe, haber, saldo, fecha) VALUES ('$afiliador', '$idUser','$debe',0,'$saldo','$fecha')";
+					mysql_query($sql);
+					
+					$rest = $rest - $debe;
+
+					$sql = "INSERT INTO cuenta (user_id, userFrom, debe, haber, saldo, fecha) VALUES ('$idUser', '$afiliador','0','$debe','$rest','$fecha')";
+					mysql_query($sql);
+
+					$rst = "SELECT nivel FROM tbl_users WHERE user_id = $afiliador";
+					$regis = mysql_query($rst);
+
+					$reg = mysql_fetch_array($regis);
+
+					if($nivel > $reg[0]){
+						$strQuery = "UPDATE tbl_users SET nivel = $nivel WHERE user_id = $afiliador";
+						mysql_query($strQuery);
+					}
+				}	
+			}			
+		}		
 
 		$query = "select * from tbl_users where user_name = '".strtolower($username)."'";
 		$results = mysql_query( $query) or die('ok');
+
 		?>
 <!DOCTYPE HTML>
 <html>
@@ -259,7 +308,7 @@ if ($conexion) {
 		<input type="checkbox" class="checkbox" id="agree" class="form-control" name="agree">
 		<span class="help-block" id="error"></span>
 		</div>
-		<input type="hidden" name="usuario" id="usuario" value="<?php echo $username;?>" >
+		<input type="hidden" name="usuario" id="usuario" value="<?php echo $idUser;?>" >
 		<div class="form-group" align="center">
 		<input type="submit" value="Registrar.." class="btn btn-primary btn-large">
 		</div>

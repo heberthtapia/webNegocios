@@ -10,36 +10,13 @@ $stmt = $db_con->prepare("SELECT * FROM tbl_users WHERE user_id=:uid");
 $stmt->execute(array(":uid"=>$_SESSION['user_session']));
 $row=$stmt->fetch(PDO::FETCH_ASSOC);
 
-/*function __autoload($class_name)
-{
-	require_once $class_name.'.php';
-}*/
-require_once "tree.php";
+include('dbcon.php');
 
-$tree = new Tree();
+$q = "SELECT * FROM cuenta WHERE user_id = '".$row['user_id']."' ORDER BY id_cuenta ASC";
+$str = mysql_query($q) or die(mysql_error());
 
-$elements = $tree->get();
-$masters = $elements["masters"];
-$childrens = $elements["childrens"];
-
-/*echo "<pre>";
-var_dump($childrens);
-
-echo "</pre>";
-*/
-$rows = $childrens;
-count($childrens);
-$cont = 0;
-$idUser = $_SESSION['user_session'];
-foreach($rows as $row){
-	
-	if($row["usuario_afiliado"] == $idUser){
-		
-		$idUser = $row["user_id"];
-		//nested($rows, $row["$idUser"]);
-	}else{
-		$cont++;
-	}
+while ( $fila = mysql_fetch_array($str) ) {
+	$saldo = trim($fila['saldo']);
 }
 
 ?>
@@ -57,6 +34,133 @@ foreach($rows as $row){
 <link rel='stylesheet' href='http://fonts.googleapis.com/icon?family=Material+Icons' type='text/css'>
 <link href="http://fonts.googleapis.com/css?family=PT+Sans+Narrow:400,700" rel="stylesheet" type="text/css">
 <link rel="stylesheet" href="css/sidenav.min.css" type="text/css">
+<script src="../js/jquery-1.11.1.min.js" type="text/javascript"></script>
+<script src="../js/bootstrap.js" type="text/javascript"></script>
+<script src="../js/jquery.validate.js" type="text/javascript"></script>
+<script>
+$(document).ready(function() {
+
+	$('#number').blur(function(){
+		
+		$('#Info').html('<img src="loader.gif" alt="" />').fadeOut(1000);
+		var number = $(this).val();
+		var dataString = 'number='+number;
+		$.ajax({
+			type: "POST",
+			url: "check_username.php",
+			data: dataString,
+			success: function(data) {
+				$('#Info').fadeIn(1000).html(data);
+				//alert(data);
+			}
+		});
+	});
+
+	$().ready(function() {
+		// validate the comment form when it is submitted
+		$("#commentForm").validate();
+
+		// validate signup form on keyup and submit
+		$("#formRetiro").validate({
+			rules: {
+				firstname: {
+					required: true,
+					 minlength: 3},
+				lastname: {
+					required: true,
+					 minlength: 4},
+				date: "required",
+				ci: {
+					required: true,
+					minlength: 7,
+					maxlength: 12,
+					},
+				phone: {
+					required: true,
+					minlength: 8,
+					maxlength: 15,
+				},
+				username: {
+					required: true,
+					minlength: 5
+				},
+				password: {
+					required: true,
+					minlength: 8
+				},
+				confirm_password: {
+					required: true,
+					minlength: 8,
+					equalTo: "#password"
+				},
+				email: {
+					required: true,
+					email: true
+				},
+				city: "required",
+				pais: "required",
+				agree: "required",
+				number: {
+					required: true,
+					number: true
+				}
+			},
+			messages: {
+				firstname: "El nombre tiene 3 caracteres como minimo",
+				lastname: "El apellido tiene 4 caracteres como minimo",
+				date: "Por favor ingrese la fecha de nacimiento (dia/mes/año)",
+				ci: {
+						minlength: "La cedula de identidad tiene 7 digitos como minimo",
+						maxlength: "La cedula de identidad tiene 12 digitos como maximo",
+					},
+				city: "Por favor ingrese la ciudad en la que reside actualmente",
+				pais: "Por favor ingrese el pais de su procedencia",
+				phone: {
+					minlength: "El numero movil tiene como minimo 8 numeros",
+					maxlength: "El numero movil tiene como maximo 12 numeros",
+					},
+				username: {
+					required: "Por favor ingrese su nombre de usuario",
+					minlength: "El nombre de usuario tiene como minimo 5 caracteres"
+				},
+				password: {
+					required: "Por favor ingrese su contraseña",
+					minlength: "La contraseña tiene como minimo 8 caracteres"
+				},
+				confirm_password: {
+					required: "Por favor ingrese su contraseña",
+					minlength: "La contraseña tiene como minimo 8 caracteres",
+					equalTo: "Por favor ingrese la misma contraseña"
+				},
+				email: "Por favor ingrese un correo valido",
+				agree: "Por favor acepte nuestras politicas",
+				number: "Solo numeros"
+			}
+		});
+
+		// combina el nombre y apellido para el nombre de usuario
+		$("#username").focus(function() {
+			var firstname = $("#firstname").val();
+			var lastname = $("#lastname").val();
+			if (firstname && lastname && !this.value) {
+				this.value = firstname + "." + lastname;
+			}
+		});
+
+		//code to hide topic selection, disable for demo
+		var newsletter = $("#newsletter");
+		// newsletter topics are optional, hide at first
+		var inital = newsletter.is(":checked");
+		var topics = $("#newsletter_topics")[inital ? "removeClass" : "addClass"]("red");
+		var topicInputs = topics.find("input").attr("disabled", !inital);
+		// show when newsletter is checked
+		newsletter.click(function() {
+			topics[this.checked ? "removeClass" : "addClass"]("red");
+			topicInputs.attr("disabled", !this.checked);
+		});
+	});
+});
+</script>
 <title>Bienvenido</title>
   <style type="text/css">
   body {
@@ -73,7 +177,7 @@ foreach($rows as $row){
   }
   h1 { margin:30px auto; text-align:center;}
   </style>
- <script src="../js/jquery-1.10.2.min.js" type="text/javascript"></script>
+ 
   <script src="../js/responsive-nav.js" type="text/javascript"></script>
 
   <style type="text/css">
@@ -98,6 +202,10 @@ foreach($rows as $row){
 				$(this).find("span").removeClass("glyphicon-plus-sign").addClass("glyphicon-minus-sign")
 			}
 			$(this).next("ul").slideToggle();
+		})
+
+		$('#myModal').on('shown.bs.modal', function () {
+		  
 		})
 	});
 	</script>
@@ -256,33 +364,21 @@ foreach($rows as $row){
 			<div class="row">
 				<div class="col-sm-8">
 					   <div class="panel panel-success">
-									  <div class="panel-heading">Mi Red de Afiliados:</div>
-									<div class="panel-body">
+							<div class="panel-heading">Mi Saldo:</div>
+								<div class="panel-body">
 
+							<dl class="dl-horizontal">
+							  	<dt>MI SALDO :</dt>
+							  	<dd>Bs. <?=$saldo;?></dd>								
+							</dl>
+							<dl class="dl-horizontal">
+								<!-- Button trigger modal -->
+								<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
+								Solicitar Retiro
+								</button>								
+							</dl>
 
-		<h3 class="heading text-center">MI RED</h3><hr>
-		<ul>
-		<?php
-		$cont = 0;
-		foreach($masters as $master)
-		{
-		?>
-			<li style="margin: 5px 0px">
-				<span><i class='glyphicon glyphicon-user'></i></span>
-				<a href="#" data-status="<?php echo $master["nivel"] ?>"
-				style="margin: 5px 6px" class="btn btn-info btn-folder">
-				<span class='<?php echo $master['nivel'] == $_SESSION['user_afiliado'] ?
-					'glyphicon glyphicon-minus-sign' :
-					'glyphicon glyphicon-plus-sign' ?>'>
-				</span>
-				<?php echo $master["user_name"] ?></a>
-				<?php echo Tree::nested($childrens, $master["user_id"], $cont) ?>
-			</li>
-		<?php
-		}
-		?>
-		</ul>
-									</div>
+								</div>
 					   </div>
 				</div>
 				<div class="col-sm-4">
@@ -352,8 +448,45 @@ foreach($rows as $row){
 	</div>
 	</div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade bs-example-modal-sm" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+  <div class="modal-dialog modal-sm" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="exampleModalLabel">Solicitar Retiro</h4>
+      </div>
+      <div class="modal-body">
+      	<div class="row">
+          <div class="col-md-6">MI SALDO :</div>
+          <div class="col-md-6">Bs. <?=$saldo;?></div>
+          <br><br>
+        </div>
+        <form class="cmxform" id="formRetiro" method="POST" action="solicitarRetiro.php" role="form">
+          <div class="form-group">
+            <label for="recipient-name" class="control-label">Monto a Retirar:</label>
+            <input type="text" class="form-control" id="number" name="number">
+            <div id="Info"></div>          
+          </div>
+          <div class="form-group">
+            <label for="message-text" class="control-label">Mensaje:</label>
+            <textarea class="form-control" id="message" name="message"></textarea>
+          </div>
+
+          <div class="form-group" align="center">
+          	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			<input type="submit" value="Enviar Solicitud" class="btn btn-primary btn-large">
+		  </div>
+
+        </form>
+      </div>      
+    </div>
+  </div>
+</div>
+
 <!---End-content---->
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+
 <script src="js/sidenav.min.js"></script>
 <script>$('[data-sidenav]').sidenav();</script>
 	</body>

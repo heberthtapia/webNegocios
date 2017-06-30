@@ -1,6 +1,9 @@
 <?php
 /*error_reporting(E_ALL ^ E_NOTICE);*/
 include('dbcon.php');
+
+date_default_timezone_set("America/La_Paz" );
+
 $username = $_POST['username'];
 $password = md5($_POST['password']);
 $email = $_POST['email'];
@@ -8,8 +11,18 @@ $padrino = 0;
 $nivel = 0;
 if ($conexion) {
 		//echo "conexion exitosa. <br />";
-		$insert = "INSERT INTO tbl_users (user_name,user_email,user_password,usuario_afiliado,joining_date,nivel) VALUES ('$username','$email','$password','$padrino','now()','$nivel')";
+
+		$fecha = date('Y-m-d g:i:s');
+
+		$insert = "INSERT INTO tbl_users (user_name,user_email,user_password,usuario_afiliado,joining_date,nivel) VALUES ('$username','$email','$password','$padrino','$fecha','$nivel')";
+
 		mysql_query($insert);
+
+		$idUser = mysql_insert_id();
+
+		$sql	= "INSERT INTO cuenta (user_id, userFrom, debe, haber, saldo, fecha) VALUES ('$idUser', 0,350,0,350,'$fecha')";
+		mysql_query($sql);
+
 		//$ididpadrino=mysql_insert_id();
 		//exit();
 		/*$resultado=mysqli_query($conexion,$insert);
@@ -19,9 +32,9 @@ if ($conexion) {
 		else {
 			echo "error en la ejecución de la consulta. <br />";
 		}
-		if (mysqli_close($con)){ 
+		if (mysqli_close($con)){
 			echo "desconexion realizada. <br />";
-		} 
+		}
 		else {
 			echo "error en la desconexión";
 		}*/
@@ -40,7 +53,7 @@ if ($conexion) {
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <link href="css/bootstrap.css" rel="stylesheet" type="text/css" media="all" />
 <link rel="stylesheet" href="css/styleboot.css" type="text/css" media="all" />
-<link href="css/font-awesome.css" rel="stylesheet">  
+<link href="css/font-awesome.css" rel="stylesheet">
 <link href="../css/style.css" rel="stylesheet" type="text/css"  media="all" />
 <link href='http://fonts.googleapis.com/css?family=Open+Sans:300,700,800,600,400' rel='stylesheet' type='text/css'>
 <script src="js/jquery-1.11.1.min.js" type="text/javascript"></script>
@@ -56,17 +69,17 @@ if ($conexion) {
 		$("#signupForm").validate({
 			rules: {
 				firstname: {
-					required: true, 
-     				minlength: 3},
+					required: true,
+					 minlength: 3},
 				lastname: {
-					required: true, 
-     				minlength: 4},
+					required: true,
+					 minlength: 4},
 				date: "required",
 				ci: {
-					required: true, 
+					required: true,
 					minlength: 7,
 					maxlength: 12,
-					}, 	
+					},
 				phone: {
 					required: true,
 					minlength: 8,
@@ -137,7 +150,7 @@ if ($conexion) {
 <body>
 	<!----start-header----->
 	 <div class="header">
-	     <div class="wrap">
+		 <div class="wrap">
 			<div class="top-header">
 				<div class="logo">
 					<a href="index.html"><img src="../images/logo.jpg" height="80"></a>
@@ -147,27 +160,27 @@ if ($conexion) {
 			<div class="top-nav">
 				<div class="top-nav-left">
 					 <div id="nav">
-				      <ul>
-				        <li><a href="#">INICIO</a></li>
-				        <li><a href="#">QUIENES SOMOS</a></li>
-				         <li><a href="#">SERVICIOS</a></li>
-                         <li class="active"><a href="#">REGISTRATE</a></li>
-				         <!--<li><a href="blog.html">Blog</a></li>
-				         <li><a href="projects.html">Projects</a></li>-->
-				         <li><a href="#">CONTACTO</a></li>
-				     </ul>
-		       </div>
-		       <script>
-			      var navigation = responsiveNav("#nav");
-			    </script>
+					  <ul>
+						<li><a href="#">INICIO</a></li>
+						<li><a href="#">QUIENES SOMOS</a></li>
+						 <li><a href="#">SERVICIOS</a></li>
+						 <li class="active"><a href="#">REGISTRATE</a></li>
+						 <!--<li><a href="blog.html">Blog</a></li>
+						 <li><a href="projects.html">Projects</a></li>-->
+						 <li><a href="#">CONTACTO</a></li>
+					 </ul>
+			   </div>
+			   <script>
+				  var navigation = responsiveNav("#nav");
+				</script>
 				</div>
 				<div class="top-nav-right">
 					<div class="search">
-				  	<form>
-				  		<input type="text" value="" />
-				  		<input type="submit" value="" />
-				  		<div class="clear"></div>
-				  	</form>
+					  <form>
+						  <input type="text" value="" />
+						  <input type="submit" value="" />
+						  <div class="clear"></div>
+					  </form>
 				  </div>
 				</div>
 				<div class="clear"> </div>
@@ -176,101 +189,101 @@ if ($conexion) {
 		</div>
 	</div>
    <!----End-header----->
-	     
+
 		 <!---start-content---->
 		 <div class="wrap">
-		 	<div class="about-desc">
-		     <div class="content">	 	
-		      <div class="signup-form-container"><br>
-    <div class="form-body">	    
-        <form class="cmxform" id="signupForm" method="POST" action="registrar_datos_user.php" role="form">
-        <fieldset>
-        <div class="form-header">
-          <h3 class="form-title texthead" align="center"><i class="fa fa-user bigicon"></i>&nbsp;&nbsp;Registre sus Datos Completos...</h3>
-         </div>
-         <div class="form-group">
-        <label for="firstname"  class="col-lg-2 control-label bigicon">Nombres</label>
-        <div class="input-group">
-        <div class="input-group-addon"><span class="glyphicon glyphicon-user texthead"></span></div>
-        <input id="firstname" name="firstname" type="text" class="form-control"  placeholder="Nombres">
-        </div>
-        <span class="help-block" id="error"></span></div>
-        <div class="form-group">
-        <label for="lastname"  class="col-lg-2 control-label bigicon">Apellidos</label>
-        <div class="input-group">
-        <div class="input-group-addon"><span class="glyphicon glyphicon-user texthead"></span></div>
-        <input id="lastname" name="lastname" type="text" class="form-control"  placeholder="Apellidos"  maxlength="60">
-        </div>
-        <span class="help-block" id="error"></span>        
-		</div>
-        <div class="form-group">
-        <label for="date"  class="col-lg-2 control-label bigicon">fecha de Nacimiento</label>
-        <div class="input-group">
-        <div class="input-group-addon"><span class="glyphicon glyphicon-calendar texthead"></span></div>
-        <input id="date" name="date" type="date" class="form-control">
-        </div>
-        <span class="help-block" id="error"></span>        
-		</div>
-        <div class="form-group">
-        <label for="ci"  class="col-lg-2 control-label bigicon">CI/DNI/ID</label>
-        <div class="input-group">
-        <div class="input-group-addon"><span class="glyphicon glyphicon-user texthead"></span></div>
-        <input id="ci" name="ci" type="number" class="form-control"  placeholder="7654321"  maxlength="10">
-        </div>
-        <span class="help-block" id="error"></span>        
-		</div>
-         <div class="form-group">
-        <label for="phone"  class="col-lg-2 control-label bigicon">Telefono movil</label>
-        <div class="input-group">
-        <div class="input-group-addon"><span class="glyphicon glyphicon-phone texthead"></span></div>
-        <input id="phone" name="phone" class="form-control" type="number" placeholder="591-72558972"  maxlength="15">
-        </div>
-        <span class="help-block" id="error"></span>        
-		</div>
-        <div class="form-group">        
-        <label for="city"  class="col-lg-2 control-label bigicon">Ciudad</label>
+			 <div class="about-desc">
+			 <div class="content">
+			  <div class="signup-form-container"><br>
+	<div class="form-body">
+		<form class="cmxform" id="signupForm" method="POST" action="registrar_datos_user.php" role="form">
+		<fieldset>
+		<div class="form-header">
+		  <h3 class="form-title texthead" align="center"><i class="fa fa-user bigicon"></i>&nbsp;&nbsp;Registre sus Datos Completos...</h3>
+		 </div>
+		 <div class="form-group">
+		<label for="firstname"  class="col-lg-2 control-label bigicon">Nombres</label>
 		<div class="input-group">
-        <div class="input-group-addon"><span class="glyphicon glyphicon-home texthead"></span></div>
-        <input id="city" name="city" class="form-control" type="city" placeholder="Donde vives actualmente"  maxlength="20">
-        </div>
-        <span class="help-block" id="error"></span>        
+		<div class="input-group-addon"><span class="glyphicon glyphicon-user texthead"></span></div>
+		<input id="firstname" name="firstname" type="text" class="form-control"  placeholder="Nombres">
 		</div>
-        <div class="form-group">        
-        <label for="pais"  class="col-lg-2 control-label bigicon">Pais</label>
+		<span class="help-block" id="error"></span></div>
+		<div class="form-group">
+		<label for="lastname"  class="col-lg-2 control-label bigicon">Apellidos</label>
 		<div class="input-group">
-        <div class="input-group-addon"><span class="glyphicon glyphicon-globe texthead"></span></div>
-        <input id="pais" name="pais" class="form-control" type="pais" placeholder="De donde eres???"  maxlength="20">
-        </div>
-        <span class="help-block" id="error"></span>        
+		<div class="input-group-addon"><span class="glyphicon glyphicon-user texthead"></span></div>
+		<input id="lastname" name="lastname" type="text" class="form-control"  placeholder="Apellidos"  maxlength="60">
 		</div>
-        <div class="form-group">        
-        <label for="agree"  class="col-lg-3 control-label bigicon">Esta de acuerdo con nuestras politicas</label>
+		<span class="help-block" id="error"></span>
+		</div>
+		<div class="form-group">
+		<label for="date"  class="col-lg-2 control-label bigicon">fecha de Nacimiento</label>
+		<div class="input-group">
+		<div class="input-group-addon"><span class="glyphicon glyphicon-calendar texthead"></span></div>
+		<input id="date" name="date" type="date" class="form-control">
+		</div>
+		<span class="help-block" id="error"></span>
+		</div>
+		<div class="form-group">
+		<label for="ci"  class="col-lg-2 control-label bigicon">CI/DNI/ID</label>
+		<div class="input-group">
+		<div class="input-group-addon"><span class="glyphicon glyphicon-user texthead"></span></div>
+		<input id="ci" name="ci" type="number" class="form-control"  placeholder="7654321"  maxlength="10">
+		</div>
+		<span class="help-block" id="error"></span>
+		</div>
+		 <div class="form-group">
+		<label for="phone"  class="col-lg-2 control-label bigicon">Telefono movil</label>
+		<div class="input-group">
+		<div class="input-group-addon"><span class="glyphicon glyphicon-phone texthead"></span></div>
+		<input id="phone" name="phone" class="form-control" type="number" placeholder="591-72558972"  maxlength="15">
+		</div>
+		<span class="help-block" id="error"></span>
+		</div>
+		<div class="form-group">
+		<label for="city"  class="col-lg-2 control-label bigicon">Ciudad</label>
+		<div class="input-group">
+		<div class="input-group-addon"><span class="glyphicon glyphicon-home texthead"></span></div>
+		<input id="city" name="city" class="form-control" type="city" placeholder="Donde vives actualmente"  maxlength="20">
+		</div>
+		<span class="help-block" id="error"></span>
+		</div>
+		<div class="form-group">
+		<label for="pais"  class="col-lg-2 control-label bigicon">Pais</label>
+		<div class="input-group">
+		<div class="input-group-addon"><span class="glyphicon glyphicon-globe texthead"></span></div>
+		<input id="pais" name="pais" class="form-control" type="pais" placeholder="De donde eres???"  maxlength="20">
+		</div>
+		<span class="help-block" id="error"></span>
+		</div>
+		<div class="form-group">
+		<label for="agree"  class="col-lg-3 control-label bigicon">Esta de acuerdo con nuestras politicas</label>
 		<input type="checkbox" class="checkbox" id="agree" class="form-control" name="agree">
-        <span class="help-block" id="error"></span>        
+		<span class="help-block" id="error"></span>
 		</div>
-        <input type="hidden" name="usuario" id="usuario" value="<?php echo $username;?>" >
-        <div class="form-group" align="center"> 
-        <input type="submit" value="Registrar.." class="btn btn-primary btn-large">
-        </div>
-        </fieldset>
-        </form>
-        </div>
-     </div>
+		<input type="hidden" name="usuario" id="usuario" value="<?php echo $username;?>" >
+		<div class="form-group" align="center">
+		<input type="submit" value="Registrar.." class="btn btn-primary btn-large">
+		</div>
+		</fieldset>
+		</form>
+		</div>
+	 </div>
 			</div>
 			</div>
-		  </div>		   			
+		  </div>
 		 <!---End-content---->
 		 <!---start-footer---->
 		  <div class="footer">
-		    <div class="wrap">
-		    	 <div class="foot-nav">
+			<div class="wrap">
+				 <div class="foot-nav">
 			  <ul>
-			   		<li><a href="#">INICIO</a></li>
-			   		<li><a href="#">QUIENES SOMOS</a></li>
-			   		<li><a href="#">CONTACTOS</a></li>
-			   	</ul>
-			   	</div>		
-			   	<div class="copy-right">
+					   <li><a href="#">INICIO</a></li>
+					   <li><a href="#">QUIENES SOMOS</a></li>
+					   <li><a href="#">CONTACTOS</a></li>
+				   </ul>
+				   </div>
+				   <div class="copy-right">
 					<p>2014 Copyright (c) .Template by <a href="http://w3layouts.com/" target="_blank"> W3layouts</a></p>
 				</div>
 			<div class="clear"> </div>
@@ -279,8 +292,8 @@ if ($conexion) {
 		 <!---End-footer---->
 	</body>
 </html>
-<?		
-exit ();	
+<?
+exit ();
 
 }
 ?>

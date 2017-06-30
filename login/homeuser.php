@@ -67,7 +67,7 @@ $row=$stmt->fetch(PDO::FETCH_ASSOC);
 		  <li><a href="misdatos.php"><span class="glyphicon glyphicon-user"></span>&nbsp;&nbsp;<small>Mis datos</small></a></li>
 		  <li><a href="misdatoscuenta.php"><span class="glyphicon glyphicon-list-alt"></span>&nbsp;&nbsp;<small>Agregar cuenta Bancaria</small></a></li>
 		  <li><a href="javascript:;"><span class="glyphicon glyphicon-pencil"></span>&nbsp;&nbsp;<small>Cambiar contraseña</small></a></li>
-		  <li><a href=></a></li>
+		  <li><a href=""></a></li>
 		</ul>
 	  </li>
 	  <li>
@@ -79,7 +79,7 @@ $row=$stmt->fetch(PDO::FETCH_ASSOC);
 		</a>
 	  </li>
 	  <li>
-		<a href="javascript:;">
+		<a href="misaldo.php">
 		  <span class="sidenav-link-icon">
 			<i class="material-icons">assignment_ind</i>
 		  </span>

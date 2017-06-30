@@ -129,8 +129,8 @@ $(document).ready(function() {
 		 <div class="wrap">
 			 <div class="about-desc">
 			 <div class="content">
-				  <?php
-include('dbcon.php');
+<?php
+	include('dbcon.php');
 	$idUser	= $_GET['nombre'];
 	$query	= "select * from tbl_users where user_id = '".strtolower($idUser)."'";
 	$results = mysql_query( $query) or die('ok');

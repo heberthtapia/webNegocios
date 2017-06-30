@@ -47,27 +47,70 @@ class Tree
 		return $this->_elements;
 	}
 
-	public static function nested($rows = array(), $usuario_afiliado = 0, $cont)
+	public function getReg($id)
 	{
 		
-		$html = "";
-		if(!empty($rows)){
+		$query = $this->_dbh->prepare("SELECT * FROM tbl_users");
+		$query->execute();		
 
+		$this->_elements["masters"] = $this->_elements["childrens"] = array();
+
+		if($query->rowCount() > 0)
+		{
+			//count(_elements)
+			$sw = 0;
+			foreach($query->fetchAll() as $key)
+			{
+				//echo $id."***<br>";
+
+				$sqlQuery = $this->_dbh->prepare("SELECT * FROM tbl_users");
+				$sqlQuery->execute();
+
+				foreach ($sqlQuery->fetchAll() as $element){
+					
+					//echo $element["user_id"]."<br>";
+					//echo $element["usuario_afiliado"]."<br>";
+					if( $element["user_id"] == $id  && $sw == 0 ){
+						$sw =1;
+						$id = $element["usuario_afiliado"];
+						array_push($this->_elements["masters"], $element);
+					}
+					elseif ( $element["user_id"] == $id ) {
+						$id = $element["usuario_afiliado"];
+						array_push($this->_elements["childrens"], $element);
+					}
+
+				}
+			}
+		}
+		return $this->_elements;
+	}
+
+	public static function nested($rows = array(), $usuario_afiliado = 0)
+	{
+		$html = "";
+		if(!empty($rows))
+		{
 			$html.="<ul>";
 			foreach($rows as $row)
 			{
-				
-				if($row["usuario_afiliado"] == $usuario_afiliado && $cont < 6 )
+				if($row["usuario_afiliado"] == $usuario_afiliado)
 				{
-					$cont++;
-					$html.="<li style='margin:5px 0px'>".$cont;
+					$html.="<li style='margin:5px 0px'>";
 					$html.="<span><i class='glyphicon glyphicon-user'></i></span>";
 					$html.="<a href='#' data-status='{$row["nivel"]}' style='margin: 5px 6px' class='btn btn-warning btn-folder'>";
-					$html.="<span class='glyphicon glyphicon-plus-sign'></span> ".$row['user_name']."</a>";
-					$html.=self::nested($rows, $row["user_id"], $cont--);
-					$html.="</li>";					
+					/*if($row["nivel"] != 1)
+					{*/
+						//$html.="<span class='glyphicon glyphicon-minus-sign'></span> ".$row['user_name']."</a>";
+					/*}
+					else
+					{*/
+						$html.="<span class='glyphicon glyphicon-plus-sign'></span> ".$row['user_name']."</a>";
+					/*}*/
+					$html.=self::nested($rows, $row["user_id"]);
+					$html.="</li>";
 				}
-			}			
+			}
 			$html.="</ul>";
 		}
 		return $html;
